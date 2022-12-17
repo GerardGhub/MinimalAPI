@@ -1,4 +1,5 @@
 using MinimalAPI.Models;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
@@ -13,12 +14,25 @@ List<Products> products = new List<Products>()
 //GET PRODUCTS
 app.MapGet("/products", async (HttpContext context) =>
 {
-   var content = string.Join('\n', products.Select
-       (temp => temp.ToString()));
-
-    await context.Response.WriteAsync(content);
+    await context.Response.WriteAsync(JsonSerializer.Serialize(products));
 });
 
+        //GET /products/{id}
+        app.MapGet("products/{id:int}", async (HttpContext context, int id) =>
+        {
+        Products? product = products.FirstOrDefault(temp =>
+        temp.Id == id);
+        if (product == null)
+        {
+         context.Response.StatusCode = 400;
+        await context.Response.WriteAsync("Incorrect Product Id");
+         return;
+        }
+            await context.Response.WriteAsync(JsonSerializer.Serialize(product));
+        });
+
+
+//POST
 app.MapPost("/products", async (HttpContext context, Products product) =>
 {
     products.Add(product);
