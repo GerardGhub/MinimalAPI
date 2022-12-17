@@ -1,14 +1,28 @@
+using MinimalAPI.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-app.MapGet("/", async (HttpContext context) =>
+List<Products> products = new List<Products>()
 {
-    await context.Response.WriteAsync("GET - DATA");
+    new Products() { Id = 1, ProductName = "Iphone"},
+    new Products() {Id = 2, ProductName = "Oppo"}
+
+};
+
+//GET PRODUCTS
+app.MapGet("/products", async (HttpContext context) =>
+{
+   var content = string.Join('\n', products.Select
+       (temp => temp.ToString()));
+
+    await context.Response.WriteAsync(content);
 });
 
-app.MapPost("/", async (HttpContext context) =>
+app.MapPost("/products", async (HttpContext context, Products product) =>
 {
-    await context.Response.WriteAsync("POST - DATA");
+    products.Add(product);
+    await context.Response.WriteAsync("Product Successfully Added!");
 });
 
 app.Run();
